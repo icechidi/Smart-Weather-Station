@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Weather Station</title>
+    <meta http-equiv="refresh" content="10">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; background: #f0f8ff; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        h1 { text-align: center; }
+        .data-box { margin: 15px 0; padding: 10px; border: 1px solid #ddd; background: #fff; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Smart Weather Station</h1>
+    <div class="data-box">🌡️ Temperature: {{ data.temperature }} °C</div>
+    <div class="data-box">💧 Humidity: {{ data.humidity }} %</div>
+    <div class="data-box">🌧️ Rain Level: {{ data.rain }}</div>
+    <div class="data-box">☀️ Light Level: {{ data.light }}</div>
+    <div class="data-box">⏰ Last Update: {{ data.timestamp }}</div>
+
+    <canvas id="tempChart" width="400" height="200"></canvas>
+</div>
+
+<script>
+fetch('/history')
+.then(res => res.json())
+.then(data => {
+    const labels = data.map(x => x.timestamp);
+    const temps = data.map(x => x.temperature);
+    new Chart(document.getElementById('tempChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: temps,
+                borderColor: 'red',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                x: { display: true, title: { display: true, text: "Time" } },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
