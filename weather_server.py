@@ -1,85 +1,59 @@
-from flask import Flask, request, render_template, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request
+import sqlite3
 import datetime
-import smtplib
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///weather_data.db'
-db = SQLAlchemy(app)
 
-# SQLite model
-class WeatherData(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    temperature = db.Column(db.Float)
-    humidity = db.Column(db.Float)
-    rain = db.Column(db.Integer)
-    light = db.Column(db.Integer)
-    timestamp = db.Column(db.String(30))
+DB_FILE = 'weather_data.db'
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
+# Initialize DB
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS weather (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        temperature REAL,
+        humidity REAL,
+        rain INTEGER,
+        light INTEGER
+    )''')
+    conn.commit()
+    conn.close()
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
-    latest = WeatherData.query.order_by(WeatherData.id.desc()).first()
-    return render_template('index.html', data=latest)
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT * FROM weather ORDER BY id DESC LIMIT 1")
+    row = c.fetchone()
+    conn.close()
+
+    data = {
+        'temperature': row[2] if row else 0,
+        'humidity': row[3] if row else 0,
+        'rain': row[4] if row else 0,
+        'light': row[5] if row else 0,
+        'timestamp': row[1] if row else 'N/A'
+    }
+    return render_template('index.html', data=data)
 
 @app.route('/update', methods=['POST'])
-def update_data():
+def update():
     temperature = float(request.form.get('temperature', 0))
     humidity = float(request.form.get('humidity', 0))
     rain = int(request.form.get('rain', 0))
     light = int(request.form.get('light', 0))
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Store in database
-    entry = WeatherData(
-        temperature=temperature,
-        humidity=humidity,
-        rain=rain,
-        light=light,
-        timestamp=timestamp
-    )
-    db.session.add(entry)
-    db.session.commit()
-
-    # Optional: Email alerts
-    if temperature > 35:
-        send_email_alert("High Temperature Alert", f"Temperature is {temperature} °C")
-    if rain < 500:
-        send_email_alert("Rain Alert", f"Rain detected! Value: {rain}")
-
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("INSERT INTO weather (timestamp, temperature, humidity, rain, light) VALUES (?, ?, ?, ?, ?)",
+              (timestamp, temperature, humidity, rain, light))
+    conn.commit()
+    conn.close()
     return "OK"
 
-@app.route('/history')
-def history():
-    records = WeatherData.query.order_by(WeatherData.id.desc()).limit(20).all()
-    return jsonify([{
-        'temperature': r.temperature,
-        'humidity': r.humidity,
-        'rain': r.rain,
-        'light': r.light,
-        'timestamp': r.timestamp
-    } for r in reversed(records)])
-
-# Email alert function (Gmail)
-def send_email_alert(subject, body):
-    sender = "your_email@gmail.com"
-    receiver = "receiver_email@gmail.com"
-    password = "your_app_password"
-
-    msg = f"Subject: {subject}\n\n{body}"
-
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(sender, password)
-        server.sendmail(sender, receiver, msg)
-        server.quit()
-        print("Email sent")
-    except Exception as e:
-        print("Email failed:", e)
-
 if __name__ == '__main__':
+    init_db()
     app.run(host='0.0.0.0', port=5000)
