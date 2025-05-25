@@ -2,8 +2,7 @@ import serial
 import time
 import requests
 
-# Adjust port as needed (check with `ls /dev/tty*`)
-SERIAL_PORT = "/dev/ttyUSB0"
+SERIAL_PORT = "/dev/ttyUSB0"  # May vary; use `ls /dev/tty*` to verify
 BAUD_RATE = 9600
 
 while True:
@@ -14,15 +13,14 @@ while True:
         print("Waiting for Arduino Nano...")
         time.sleep(2)
 
-print("Serial connected to Arduino.")
+print("Serial connected.")
 
 while True:
     try:
         line = ser.readline().decode('utf-8').strip()
-        if line:
-            # Example: temperature=25.00&humidity=56.00&rain=820&light=250
+        if line and "temperature" in line:
             print("Received:", line)
             requests.post("http://127.0.0.1:5000/update", data=line)
     except Exception as e:
         print("Error:", e)
-    time.sleep(5)
+    time.sleep(2)
