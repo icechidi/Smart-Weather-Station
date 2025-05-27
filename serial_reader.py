@@ -19,8 +19,8 @@ while True:
     try:
         line = ser.readline().decode('utf-8').strip()
         if line and "temperature" in line:
-            print("Received:", line)
+            print("Received: ", line)
             requests.post("http://127.0.0.1:5000/update", data=line)
     except Exception as e:
-        print("Error:", e)
+        print("Error: ", e)
     time.sleep(2)
