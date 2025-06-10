@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Weather Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .card {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+    .chart-box {
+      flex: 1;
+      min-width: 300px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <div class="container my-4">
+    <h2 class="text-center mb-4">🌤 Smart Weather Station Dashboard</h2>
+
+    <div class="row text-center">
+      <div class="col-md-3">
+        <div class="card border-primary">
+          <div class="card-header bg-primary text-white">Temperature (°C)</div>
+          <div class="card-body"><h4 id="temperature">--</h4></div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-success">
+          <div class="card-header bg-success text-white">Humidity (%)</div>
+          <div class="card-body"><h4 id="humidity">--</h4></div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-info">
+          <div class="card-header bg-info text-white">Rain (mm)</div>
+          <div class="card-body"><h4 id="rain">--</h4></div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-warning">
+          <div class="card-header bg-warning text-dark">Light (lx)</div>
+          <div class="card-body"><h4 id="light">--</h4></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="chart-container">
+      <div class="chart-box">
+        <canvas id="tempChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="humidityChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="rainChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="lightChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSvTlLxvFHx727KaQEPe9sUG7_B4mDSxKLbFzx5yX0PtufZkFDE7lJerFwLctoo5MQaVaaUVSd7pdSK/pub?gid=0&single=true&output=csv"; // Replace this with the CSV published link
+
+    async function fetchData() {
+      const response = await fetch(SHEET_URL);
+      const text = await response.text();
+
+      const rows = text.trim().split('\n').slice(1); // Skip header
+      const timestamps = [];
+      const temps = [], hums = [], rains = [], lights = [];
+
+      rows.forEach(row => {
+        const [timestamp, temp, hum, rain, light] = row.split(',');
+
+        timestamps.push(timestamp);
+        temps.push(parseFloat(temp));
+        hums.push(parseFloat(hum));
+        rains.push(parseFloat(rain));
+        lights.push(parseFloat(light));
+      });
+
+      // Update current readings (last row)
+      const lastIdx = rows.length - 1;
+      document.getElementById("temperature").textContent = temps[lastIdx] + "°C";
+      document.getElementById("humidity").textContent = hums[lastIdx] + "%";
+      document.getElementById("rain").textContent = rains[lastIdx] + " mm";
+      document.getElementById("light").textContent = lights[lastIdx] + " lx";
+
+      createChart("tempChart", "Temperature (°C)", timestamps, temps, 'rgb(255, 99, 132)');
+      createChart("humidityChart", "Humidity (%)", timestamps, hums, 'rgb(54, 162, 235)');
+      createChart("rainChart", "Rain (mm)", timestamps, rains, 'rgb(75, 192, 192)');
+      createChart("lightChart", "Light (lx)", timestamps, lights, 'rgb(255, 206, 86)');
+    }
+
+    function createChart(id, label, labels, data, color) {
+      new Chart(document.getElementById(id), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: label,
+            data: data,
+            borderColor: color,
+            backgroundColor: color + '20',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+          }
+        }
+      });
+    }
+
+    fetchData();
+    setInterval(fetchData, 30000); // Update every 30 seconds
+  </script>
+</body>
+</html>
