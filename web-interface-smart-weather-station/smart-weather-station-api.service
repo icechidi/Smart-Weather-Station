@@ -1,0 +1,16 @@
+[Unit]
+Description=Smart Weather Station API - Flask Server + Serial Reader
+After=network.target
+
+[Service]
+ExecStart=/bin/bash /home/ice-chidi/Documents/smart-weather-station-api/start_all.sh
+WorkingDirectory=/home/ice-chidi/Documents/smart-weather-station-api
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+Environment="PATH=/home/ice-chidi/Documents/smart-weather-station-api/venv/bin"
+Environment="VIRTUAL_ENV=/home/ice-chidi/Documents/smart-weather-station-api/venv"
+
+[Install]
+WantedBy=multi-user.target

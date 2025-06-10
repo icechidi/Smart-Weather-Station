@@ -1,0 +1,11 @@
+#SMART-WEATHER-STATION
+#CHIDI-ISAAC-ORJINZE - 32320914
+#BASHAR RABEE - 32320853
+
+
+req!
+Code editor (VS Code pref.)
+Arduino IDE
+Google Sheet to get readings from the .py file
+
+Each stage of the Project images are been attached to the zipped file, including the stage my Professor suggested a changed in the project Moving from Arduino Uno WiFi to Arduino Nano, changing the entire project structure, because we had to change the entire code, entire design from a standard breadboard to a smaller breadboard to fit the system case that was built for the project, but on a long run it was fun working on the project.
