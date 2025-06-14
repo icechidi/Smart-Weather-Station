@@ -1,6 +1,5 @@
 #SMART-WEATHER-STATION
-#CHIDI ISAAC ORJINZE - 32320914
-#BASHAR RABEE - 32320853
+
 import serial
 import time
 import requests
