@@ -12,4 +12,4 @@ Google Sheet to get readings from the .py file
 # because we had to change the entire code, 
 # entire design from a standard breadboard to a smaller breadboard to fit the 
 # system case that was built for the project, 
-# but on a long run it was fun working on the project.
+# but on a long run it was fun working on the project with my Team mate.
