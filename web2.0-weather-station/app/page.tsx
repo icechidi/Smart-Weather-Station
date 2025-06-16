@@ -19,7 +19,7 @@ export default function WeatherStation() {
   const [isLoading, setIsLoading] = useState(true)
 
   // Replace with your Google Sheets Web App URL
-  const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"
+  const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyK__Nb2lYuuj_rFXjcIiQUpMoza3-Ibx-NkkMaJKRnKkhtGbU0H_95nllV5LM0TNeh/exec"
 
   const fetchWeatherData = async () => {
     try {
