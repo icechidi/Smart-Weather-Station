@@ -31,6 +31,7 @@ export default function WeatherStation() {
         humidity: 40 + Math.random() * 40, // 40-80%
         rain: Math.random() * 10, // 0-10mm
         light: 200 + Math.random() * 800, // 200-1000 lux
+        //Find actual code and replace the mock data with real data from Google Sheets
       }
 
       setCurrentData(mockData)
